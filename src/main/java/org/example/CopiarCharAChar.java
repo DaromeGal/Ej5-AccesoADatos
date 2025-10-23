@@ -7,39 +7,36 @@ import java.io.*;
 public class CopiarCharAChar {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            System.out.println("Seleccione un archivo origen");
+            File origen = seleccionarFichero();
+            if (origen == null) {
+                System.out.println("Operación cancelada (origen).");
+                return;
+            }
 
-        System.out.println("Seleccione un archivo origen");
-        File origen = seleccionarFichero();
+            System.out.println("Seleccione un archivo destino");
+            File destino = seleccionarFichero();
+            if (destino == null) {
+                System.out.println("Operación cancelada (destino).");
+                return;
+            }
 
-        System.out.println("Seleccione un archivo destino");
-        File destino = seleccionarFichero();
+            try (BufferedReader br = new BufferedReader(new FileReader(origen));
+                 PrintWriter pw = new PrintWriter(new FileWriter(destino))) {
 
-
-        try {
-            FileReader fr = new FileReader(origen);
-            BufferedReader br = new BufferedReader(fr);
-
-            FileWriter fw = new FileWriter(destino);
-            PrintWriter pw = new PrintWriter(fw);
-
-            String linea = "";
-            while ((linea = br.readLine()) != null) {
-                char[] caracteres = linea.toCharArray();
-                for (char c : caracteres) {
-                    pw.print(c);
+                String linea;
+                while ((linea = br.readLine()) != null) {
+                    pw.println(linea);
                 }
-                pw.println();
+
+            } catch (FileNotFoundException e) {
+                System.out.println("No se encuentra el archivo: " + e.getMessage());
+            } catch (IOException e) {
+                System.out.println("Error de lectura/escritura: " + e.getMessage());
             }
-
-            } catch(FileNotFoundException e){
-                System.out.println("No se encuentra el archivo");
-            } catch(IOException e){
-                System.out.println("Error de lectura/escritura");
-            }
-
-
         });
     }
+
     public static File seleccionarFichero() {
         JFileChooser fc = new JFileChooser();
         fc.setDialogTitle("Seleccione un archivo");
@@ -49,8 +46,8 @@ public class CopiarCharAChar {
         int option = fc.showOpenDialog(null);
 
         if (option == JFileChooser.APPROVE_OPTION) {
-            return null;
+            return fc.getSelectedFile();
         }
-        return fc.getSelectedFile();
+        return null;
     }
 }
